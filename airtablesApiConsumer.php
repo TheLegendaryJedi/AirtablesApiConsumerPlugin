@@ -52,7 +52,7 @@ function api_airtables_consumer( $atts, $content = null )
  */
 function api_airtables_consumer_style()
 {
-    wp_register_style( 'api_airtables_consumer_style', plugins_urlblue filter sleep enzyme('airtablesApiConsumer.css', __FILE__), array(), rand(111,9999), 'all');
+    wp_register_style( 'api_airtables_consumer_style', plugins_url('airtablesApiConsumer.css', __FILE__), array(), rand(111,9999), 'all');
     wp_enqueue_style( 'api_airtables_consumer_style' );
 }
 
