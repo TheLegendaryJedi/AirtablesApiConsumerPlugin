@@ -36,7 +36,7 @@ function api_airtables_consumer( $atts, $content = null )
         // Generate the API results for the tags
         $result = api_get_values($table, $key);
         // Get the response of creating the shortcode
-        $response = api_format_github_repo_latest_release($result);
+        $response = format_response($result);
         // Return the response
         return $response;
     }
@@ -79,7 +79,7 @@ function api_airtables_consumer_style()
     return $result;
  }
 
- function api_format_github_repo_latest_release($result)
+ function format_response($result)
  {
     $string = '<h1>' . $result['Name'] . '</h1>';
     return $string;
