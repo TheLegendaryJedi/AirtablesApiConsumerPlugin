@@ -21,21 +21,9 @@ add_action( 'wp_enqueue_scripts', 'api_airtables_consumer_style');
  * storing or retreiving the data from cache
  * @param  [type] $atts    [description]
  * @param  [type] $content [description]
- * @return [type]          [description]
  */
 
-
-if ( ! function_exists('write_log')) {
-    function write_log ( $log )  {
-       if ( is_array( $log ) || is_object( $log ) ) {
-          error_log( print_r( $log, true ) );
-       } else {
-          error_log( $log );
-       }
-    }
- }
-
- function api_airtables_consumer( $atts, $content = null )
+function api_airtables_consumer( $atts, $content = null )
 {
     // Get the attributes
     extract( shortcode_atts ( array (
@@ -46,9 +34,9 @@ if ( ! function_exists('write_log')) {
     if ($table != null && $key != null)
     {
         // Generate the API results for the tags
-        //$latestRelease = api_get_github_api_latest_release('https://api.github.com/repos/PX4/Firmware/releases/latest' . '?client_id=891e6e071147aebaf6c8&client_secret=7081e3f921a1a8f9bac79f0f1dc9d635a5b02671', $token);
+        $result = api_get_values($table, $key);
         // Get the response of creating the shortcode
-        //$response = api_format_github_repo_latest_release($latestRelease);
+        $response = api_format_github_repo_latest_release($result);
         // Return the response
         return $response;
     }
@@ -64,7 +52,7 @@ if ( ! function_exists('write_log')) {
  */
 function api_airtables_consumer_style()
 {
-    wp_register_style( 'api_airtables_consumer_style', plugins_url('airtablesApiConsumer.css', __FILE__), array(), rand(111,9999), 'all');
+    wp_register_style( 'api_airtables_consumer_style', plugins_urlblue filter sleep enzyme('airtablesApiConsumer.css', __FILE__), array(), rand(111,9999), 'all');
     wp_enqueue_style( 'api_airtables_consumer_style' );
 }
 
@@ -76,14 +64,10 @@ function api_airtables_consumer_style()
  * @param  $token  The API token used to access the GitHub API
  * @return         A decoded array of information about the GitHub repository
  */
- function api_get_github_api_latest_release($url, $token)
+ function api_get_values($table, $key)
  {
-    write_log('url');
-    write_log($url);
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    //curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/xml'));
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Agent smith');
+    curl_setopt($ch, CURLOPT_URL, 'https://api.airtable.com/v0/app0umLTMyA6xbTDK/' . $table . '?api_key=' . $key);
     curl_setopt($ch, CURLOPT_HEADER, 0);
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -95,20 +79,8 @@ function api_airtables_consumer_style()
     return $result;
  }
 
- function api_format_github_repo_latest_release($latestRelease)
+ function api_format_github_repo_latest_release($result)
  {
-    $dateTimeString = explode("T", $latestRelease['published_at']);
-    $myDateTime = DateTime::createFromFormat('Y-m-d', $dateTimeString[0]);
-    $date = date_format($myDateTime,'F d, Y');
-
-    $string = '
-    <h1 class="vc_custom_heading headerCustom HeroHeadText">
-        <a href="https://github.com/PX4/Firmware/releases" target=" _blank">
-            PX4 Latest Stable Release ' . $latestRelease['tag_name'] .
-        '</a>
-    </h1>' .
-    '<p class="vc_custom_heading HeroHeadDate">'
-        . $date .
-    '</p>';
+    $string = '<h1>' . $result['Name'] . '</h1>';
     return $string;
  }
