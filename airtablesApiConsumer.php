@@ -21,21 +21,9 @@ add_action( 'wp_enqueue_scripts', 'api_airtables_consumer_style');
  * storing or retreiving the data from cache
  * @param  [type] $atts    [description]
  * @param  [type] $content [description]
- * @return [type]          [description]
  */
 
-
-if ( ! function_exists('write_log')) {
-    function write_log ( $log )  {
-       if ( is_array( $log ) || is_object( $log ) ) {
-          error_log( print_r( $log, true ) );
-       } else {
-          error_log( $log );
-       }
-    }
- }
-
- function api_airtables_consumer( $atts, $content = null )
+function api_airtables_consumer( $atts, $content = null )
 {
     // Get the attributes
     extract( shortcode_atts ( array (
@@ -46,9 +34,9 @@ if ( ! function_exists('write_log')) {
     if ($table != null && $key != null)
     {
         // Generate the API results for the tags
-        //$latestRelease = api_get_github_api_latest_release('https://api.github.com/repos/PX4/Firmware/releases/latest' . '?client_id=891e6e071147aebaf6c8&client_secret=7081e3f921a1a8f9bac79f0f1dc9d635a5b02671', $token);
+        $result = api_get_values($table, $key);
         // Get the response of creating the shortcode
-        //$response = api_format_github_repo_latest_release($latestRelease);
+        $response = format_response($result);
         // Return the response
         return $response;
     }
@@ -60,7 +48,6 @@ if ( ! function_exists('write_log')) {
 
 /**
  * A function to register the stylesheet
- * @return [type] [description]
  */
 function api_airtables_consumer_style()
 {
@@ -70,20 +57,15 @@ function api_airtables_consumer_style()
 
 /**
  * A function to retrieve the repository information via
- * the GitHub API.
- * @param  $author The author of the GitHub repository
- * @param  $repo   The name of the GitHub repository
- * @param  $token  The API token used to access the GitHub API
- * @return         A decoded array of information about the GitHub repository
+ * the API.
+ * @param  $table The name of the table
+ * @param  $key   Your key
+ *
  */
- function api_get_github_api_latest_release($url, $token)
+ function api_get_values($table, $key)
  {
-    write_log('url');
-    write_log($url);
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    //curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/xml'));
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Agent smith');
+    curl_setopt($ch, CURLOPT_URL, 'https://api.airtable.com/v0/app0umLTMyA6xbTDK/' . $table . '?api_key=' . $key);
     curl_setopt($ch, CURLOPT_HEADER, 0);
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -91,24 +73,31 @@ function api_airtables_consumer_style()
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
     $output = curl_exec($ch);
     curl_close($ch);
-    $result = json_decode(trim($output), true);
+    //$result = json_decode(trim($output), true);
+    $result = json_decode($output);
+    //print_r($result->records);
+
     return $result;
  }
 
- function api_format_github_repo_latest_release($latestRelease)
+ /**
+  * This function needs to me custumized for each table.
+  * TODO: make it dynamic for every case
+ */
+ function format_response($result)
  {
-    $dateTimeString = explode("T", $latestRelease['published_at']);
-    $myDateTime = DateTime::createFromFormat('Y-m-d', $dateTimeString[0]);
-    $date = date_format($myDateTime,'F d, Y');
-
-    $string = '
-    <h1 class="vc_custom_heading headerCustom HeroHeadText">
-        <a href="https://github.com/PX4/Firmware/releases" target=" _blank">
-            PX4 Latest Stable Release ' . $latestRelease['tag_name'] .
-        '</a>
-    </h1>' .
-    '<p class="vc_custom_heading HeroHeadDate">'
-        . $date .
-    '</p>';
-    return $string;
+    $html_content = "";
+    if (! empty($result->records)) {
+        foreach ($result->records as $record) {
+            if (isset($record->fields->Maintainer)) {
+                $name = $record->fields->Name;
+                //print_r($name);
+                $maintainer = $record->fields->Maintainer;
+                if($maintainer){
+                    $html_content .= "<h1>" . $name . "</h1><br/>";
+                }
+            }
+        }
+    }
+    return $html_content;
  }
