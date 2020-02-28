@@ -88,16 +88,30 @@ function api_airtables_consumer_style()
  {
     $html_content = "";
     if (! empty($result->records)) {
+        $html_content = '<div class="airtable_cards et_pb_row et_pb_row_1 et_pb_row_3col">';
         foreach ($result->records as $record) {
             if (isset($record->fields->Maintainer)) {
                 $name = $record->fields->Name;
                 //print_r($name);
                 $maintainer = $record->fields->Maintainer;
+                //print_r($maintainer);
                 if($maintainer){
-                    $html_content .= "<h1>" . $name . "</h1><br/>";
+					$component = $record->fields->Component;
+					//print_r($component);
+					$github = $record->fields->Github;
+					//print_r($github);
+					$img = $record->fields->Photo[0]->url;
+					//print_r($img);
+                    $html_content .= '<div class="et_pb_column et_pb_column_1_3">'
+                                    .'<img class="air_image" src="' . $img . '" height="275" width="275">'
+                                    .'<h3>' . $name . '</h3>'
+                                    .'<h3>' . $component . '</h3>'
+                                    .'<a href="' . $github . '">GitHub</a>'
+                                    .'</div>';
                 }
             }
         }
+        $html_content .= '</div>';
     }
     return $html_content;
  }
