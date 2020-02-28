@@ -7,6 +7,9 @@
 .airtable_cards {
     text-align: center;
 }
+.airtable_cards a{
+    font-size: 26px;
+}
 .airtable_cards img{
     border-radius: 50%;
 }

@@ -104,8 +104,8 @@ function api_airtables_consumer_style()
 					//print_r($img);
                     $html_content .= '<div class="et_pb_column et_pb_column_1_3">'
                                     .'<img class="air_image" src="' . $img . '" height="275" width="275">'
-                                    .'<h3>' . $name . '</h3>'
-                                    .'<h3>' . $component . '</h3>'
+                                    .'<h1>' . $name . '</h1>'
+                                    .'<h1>' . $component . '</h1>'
                                     .'<a href="' . $github . '">GitHub</a>'
                                     .'</div>';
                 }
